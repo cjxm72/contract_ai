@@ -1,0 +1,180 @@
+{
+  "contract_name": "企业级全栈网站技术开发与运维服务合同（极限测试版）",
+  "contract_type": "技术开发与运维",
+  "contract_version": "V2.0.2024",
+  "contract_language": "中文",
+  "contract_currency": "CNY",
+  "party_a": {
+    "name": "北京创新科技有限公司",
+    "legal_representative": "王五",
+    "registered_address": "北京市海淀区中关村科技园1号楼",
+    "contact_address": "北京市朝阳区建国路100号",
+    "phone": "010-12345678",
+    "email": "contact@bjinnovation.com",
+    "tax_id": "91110108MA02ABCD12",
+    "bank_name": "中国工商银行北京分行",
+    "bank_account": "0200001234567890123"
+  },
+  "party_b": {
+    "name": "上海卓越技术有限公司",
+    "legal_representative": "赵六",
+    "registered_address": "上海市浦东新区张江高科技园区",
+    "contact_address": "上海市徐汇区漕宝路200号",
+    "phone": "021-87654321",
+    "email": "info@shzhuoyue.com",
+    "tax_id": "91310115MA02EFGH34",
+    "bank_name": "中国建设银行上海分行",
+    "bank_account": "3100009876543210987"
+  },
+  "contract_amount": {
+    "total": "人民币150,000元",
+    "breakdown": [
+      {
+        "item": "前端开发",
+        "amount": "60,000元"
+      },
+      {
+        "item": "后端开发",
+        "amount": "70,000元"
+      },
+      {
+        "item": "数据库设计与部署",
+        "amount": "20,000元"
+      }
+    ],
+    "tax_rate": "6%",
+    "tax_inclusive": true
+  },
+  "contract_period": {
+    "start_date": "2024-03-01",
+    "end_date": "2024-08-31",
+    "duration_days": 184,
+    "milestones": [
+      {
+        "phase": "需求分析与原型设计",
+        "start": "2024-03-01",
+        "end": "2024-03-15"
+      },
+      {
+        "phase": "前端开发",
+        "start": "2024-03-16",
+        "end": "2024-05-15"
+      },
+      {
+        "phase": "后端开发与集成",
+        "start": "2024-05-16",
+        "end": "2024-07-15"
+      },
+      {
+        "phase": "测试与部署",
+        "start": "2024-07-16",
+        "end": "2024-08-31"
+      }
+    ]
+  },
+  "service_content": {
+    "description": "企业官网前端开发、后台管理系统开发、数据库设计与部署、服务器配置、安全加固、性能优化、SEO基础设置、第三方接口对接、培训与文档编写",
+    "tech_stack": {
+      "frontend": ["HTML5", "CSS3", "JavaScript", "Vue.js", "Webpack"],
+      "backend": ["Node.js", "Express", "MySQL", "Redis"],
+      "deployment": ["Nginx", "Docker", "阿里云ECS"]
+    },
+    "deliverables": [
+      "完整源代码",
+      "技术文档",
+      "用户手册",
+      "数据库设计文档",
+      "部署脚本",
+      "测试报告"
+    ]
+  },
+  "payment_terms": [
+    {
+      "stage": "首付款",
+      "condition": "合同签订后3个工作日内",
+      "amount": "45,000元",
+      "percentage": "30%"
+    },
+    {
+      "stage": "中期款",
+      "condition": "完成前端与后端基础功能并演示通过",
+      "amount": "60,000元",
+      "percentage": "40%"
+    },
+    {
+      "stage": "尾款",
+      "condition": "项目验收合格后7个工作日内",
+      "amount": "45,000元",
+      "percentage": "30%"
+    }
+  ],
+  "delivery_date": "2024-08-31",
+  "acceptance_criteria": [
+    "所有功能按需求文档实现",
+    "无重大bug",
+    "响应时间小于2秒",
+    "支持Chrome、Firefox、Safari、Edge浏览器",
+    "移动端适配良好"
+  ],
+  "warranty_period": {
+    "duration": "12个月",
+    "start_date": "验收合格次日",
+    "services": ["bug修复", "性能优化", "安全补丁", "7x24小时应急响应"]
+  },
+  "penalty_clause": {
+    "delay": {
+      "description": "如乙方逾期交付，每逾期一日按合同总金额的千分之五支付违约金",
+      "max_percentage": "10%"
+    },
+    "defect": {
+      "description": "如交付物存在重大缺陷，乙方需在7日内修复，否则甲方有权解除合同并要求赔偿"
+    }
+  },
+  "intellectual_property": {
+    "ownership": "甲方",
+    "license": "乙方可保留用于展示案例的非独占使用权"
+  },
+  "confidentiality": "双方应对本合同内容及履行过程中知悉的对方商业秘密承担保密义务，保密期限为合同终止后5年",
+  "termination_clause": [
+    "一方严重违约，经催告后15日内未改正",
+    "一方破产或被吊销营业执照",
+    "不可抗力持续30天以上"
+  ],
+  "dispute_resolution": {
+    "step1": "友好协商",
+    "step2": "提交北京仲裁委员会仲裁",
+    "arbitration_rules": "现行有效的《北京仲裁委员会仲裁规则》",
+    "language": "中文",
+    "venue": "北京"
+  },
+  "contact_persons": {
+    "party_a": {
+      "name": "张三",
+      "title": "项目经理",
+      "phone": "13800138000",
+      "email": "zhangsan@bjinnovation.com"
+    },
+    "party_b": {
+      "name": "李四",
+      "title": "技术总监",
+      "phone": "13900139000",
+      "email": "lisi@shzhuoyue.com"
+    }
+  },
+  "attachments": [
+    "需求规格说明书.docx",
+    "技术方案书.pdf",
+    "项目计划表.xlsx",
+    "保密协议.pdf"
+  ],
+  "signature_blocks": {
+    "party_a_signature": "___________________",
+    "party_b_signature": "___________________",
+    "sign_date": "____年____月____日"
+  },
+  "metadata": {
+    "generated_by": "合同生成系统 v3.0",
+    "created_at": "2024-02-20T10:00:00Z",
+    "template_id": "TECH_DEV_2024_V2"
+  }
+}

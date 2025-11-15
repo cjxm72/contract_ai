@@ -1,0 +1,18 @@
+{
+  "contract_name": "网站技术开发合同",
+  "contract_type": "技术开发",
+  "party_a": "北京创新科技有限公司",
+  "party_b": "上海卓越技术有限公司",
+  "contract_amount": "人民币150,000元",
+  "contract_period": "2024年3月1日至2024年8月31日",
+  "service_content": "企业官网前端开发、后台管理系统开发、数据库设计与部署",
+  "payment_terms": "合同签订后支付30%，项目中期支付40%（项目中期指乙方作出可运行演示，之后进入中期），验收合格后支付30%",
+  "delivery_date": "2024年8月31日前完成全部开发并交付使用",
+  "warranty_period": "项目验收合格后12个月",
+  "penalty_clause": "如乙方逾期交付，每逾期一日按合同金额的千分之五支付违约金",
+  "dispute_resolution": "双方协商解决，协商不成的提交北京仲裁委员会仲裁",
+  "contact_person_a": "张三",
+  "contact_phone_a": "13800138000",
+  "contact_person_b": "李四",
+  "contact_phone_b": "13900139000"
+}
