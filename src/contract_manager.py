@@ -124,19 +124,62 @@ class ContractManager:
             info_complete = False
             analysis_prompt = self._prepare_initial_context(input_data, "", asked_questions, is_first_round=True)
 
+            # 第0轮：接受JSON，AI分析并提问（必须输出）
             print(f"\n{'=' * 60}")
             print("🤖 AI正在执行语义级完整性分析...")
             print(f"{'=' * 60}")
+            print(f"\n🔄 第 0 轮：初始分析")
+            
+            ai_response = await asyncio.to_thread(self._call_model, analysis_prompt, "analysis")
+            ai_response = self._limit_text(ai_response, 300)
+            info_complete = False  # 第0轮强制不完整，必须提问
 
-            for round_idx in range(self.max_rounds):
-                print(f"\n🔄 第 {round_idx + 1}/{self.max_rounds} 轮分析")
+            # 提取本次提出的问题，加入记忆
+            new_questions = self._extract_questions(ai_response)
+            asked_questions.extend(new_questions)
+
+            conversation_history.append({
+                "role": "assistant",
+                "content": ai_response,
+                "name": "SemanticReviewer"
+            })
+
+            # 第0轮必须输出
+            print(f"\n{'=' * 60}")
+            print("🤖 AI分析结果：")
+            print(ai_response)
+            print(f"{'=' * 60}")
+
+            # 第0轮用户必须回答
+            print("\n💬 请根据以上问题补充信息（多行输入，空行结束，输入exit可终止）：")
+            user_input = self._get_user_input().strip()
+
+            if not user_input:
+                logger.warning("⚠️ 用户未提供补充信息，将基于现有信息生成")
+            elif user_input.lower() in {"exit", "quit", "q", "停止", "退出"}:
+                return {
+                    "status": "error",
+                    "message": "用户终止对话",
+                    "conversation": conversation_history
+                }
+            else:
+                user_notes.append(user_input)
+                conversation_history.append({
+                    "role": "user",
+                    "content": user_input,
+                    "name": "User"
+                })
+
+            # 第1、2、3轮：基于用户回答继续分析（只有不完整才输出）
+            for round_idx in range(1, self.max_rounds + 1):  # round_idx: 1, 2, 3
+                # 构建分析提示
+                merged_supplements = "\n".join(f"- {note}" for note in user_notes)
+                analysis_prompt = self._prepare_initial_context(input_data, merged_supplements, asked_questions, is_first_round=False)
+                
+                print(f"\n🔄 第 {round_idx} 轮：基于用户回答继续分析")
                 ai_response = await asyncio.to_thread(self._call_model, analysis_prompt, "analysis")
                 ai_response = self._limit_text(ai_response, 300)
-                # 第一轮必须反问，强制判定为不完整
-                if round_idx == 0:
-                    info_complete = False
-                else:
-                    info_complete = self._should_stop_questioning(ai_response)
+                info_complete = self._should_stop_questioning(ai_response)
 
                 # 提取本次提出的问题，加入记忆
                 new_questions = self._extract_questions(ai_response)
@@ -148,50 +191,47 @@ class ContractManager:
                     "name": "SemanticReviewer"
                 })
 
-                print(f"\n{'=' * 60}")
-                # 第一轮强制显示为需要补充，提升用户体验
-                if info_complete and round_idx > 0:
+                # 只有判断为不完整时才输出到终端
+                if not info_complete:
+                    print(f"\n{'=' * 60}")
+                    print("🤖 AI分析结果：")
+                    print(ai_response)
+                    print(f"{'=' * 60}")
+
+                    # 如果是第3轮（round_idx == 3），用户回答后直接生成，不再审查
+                    if round_idx == self.max_rounds:
+                        print("\n⚠️ 已达到最大对话轮次，将基于现有信息生成合同范本")
+                        break
+
+                    # 第1、2轮继续提问
+                    print("\n💬 请根据以上问题补充信息（多行输入，空行结束，输入exit可终止）：")
+                    user_input = self._get_user_input().strip()
+
+                    if not user_input:
+                        logger.warning("⚠️ 用户未提供补充信息，将基于现有信息生成")
+                        break
+
+                    if user_input.lower() in {"exit", "quit", "q", "停止", "退出"}:
+                        return {
+                            "status": "error",
+                            "message": "用户终止对话",
+                            "conversation": conversation_history
+                        }
+
+                    user_notes.append(user_input)
+                    conversation_history.append({
+                        "role": "user",
+                        "content": user_input,
+                        "name": "User"
+                    })
+                else:
+                    # 信息完整，直接生成
+                    print(f"\n{'=' * 60}")
                     print("✅ 信息完整，开始生成合同")
                     print("[DEBUG] 🤖 AI分析结果：")
-                else:
-                    print("🤖 AI分析结果：")
-                print(ai_response)
-                print(f"{'=' * 60}")
-
-                # 如果信息完整且不是第一轮，直接生成合同
-                if info_complete and round_idx > 0:
+                    print(ai_response)
+                    print(f"{'=' * 60}")
                     break
-
-                # 如果是最后一轮，不再提问，直接生成
-                if round_idx == self.max_rounds - 1:
-                    print("\n⚠️ 已达到最大对话轮次，将基于现有信息生成合同范本")
-                    break
-
-                # 非最后一轮，继续提问
-                print("\n💬 请根据以上问题补充信息（多行输入，空行结束，输入exit可终止）：")
-                user_input = self._get_user_input().strip()
-
-                if not user_input:
-                    logger.warning("⚠️ 用户未提供补充信息，将基于现有信息生成")
-                    break
-
-                if user_input.lower() in {"exit", "quit", "q", "停止", "退出"}:
-                    return {
-                        "status": "error",
-                        "message": "用户终止对话",
-                        "conversation": conversation_history
-                    }
-
-                user_notes.append(user_input)
-                conversation_history.append({
-                    "role": "user",
-                    "content": user_input,
-                    "name": "User"
-                })
-
-                # 基于补充信息和已问问题构建下一轮提示
-                merged_supplements = "\n".join(f"- {note}" for note in user_notes)
-                analysis_prompt = self._prepare_initial_context(input_data, merged_supplements, asked_questions, is_first_round=False)
 
             # 无论信息是否完整，都生成合同范本
             if info_complete:
