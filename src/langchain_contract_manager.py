@@ -151,7 +151,7 @@ class LangChainContractManager:
         
         model, tokenizer = self.local_model.get_model()
         return LocalQwenLLM(model, tokenizer, self.temperature, self.max_tokens)
-    
+
     def _load_contract_templates(self):
         """加载合同模板"""
         current_dir = Path(__file__).parent
@@ -165,10 +165,13 @@ class LangChainContractManager:
             logger.error(error_msg)
             raise FileNotFoundError(error_msg)
 
-        template_files = list(self.template_dir.glob("*.md"))
+        # 修改：同时支持 .md 和 .docx 文件
+        md_files = list(self.template_dir.glob("*.md"))
+        docx_files = list(self.template_dir.glob("*.docx"))
+        template_files = md_files + docx_files
 
         if not template_files:
-            error_msg = f"❌ 模板目录中没有找到任何.md模板文件: {self.template_dir}"
+            error_msg = f"❌ 模板目录中没有找到任何模板文件(.md或.docx): {self.template_dir}"
             logger.error(error_msg)
             raise FileNotFoundError(error_msg)
 
@@ -176,15 +179,20 @@ class LangChainContractManager:
 
         for template_file in template_files:
             try:
-                with open(template_file, 'r', encoding='utf-8') as f:
-                    self.templates[template_file.stem] = f.read()
+                if template_file.suffix == '.md':
+                    with open(template_file, 'r', encoding='utf-8') as f:
+                        self.templates[template_file.stem] = f.read()
+                elif template_file.suffix == '.docx':
+                    # 需要安装 python-docx 库: pip install python-docx
+                    from docx import Document
+                    doc = Document(template_file)
+                    content = '\n'.join([paragraph.text for paragraph in doc.paragraphs])
+                    self.templates[template_file.stem] = content
                 logger.info(f"✅ 加载模板: {template_file.name}")
             except Exception as e:
                 error_msg = f"❌ 加载模板失败 {template_file.name}: {e}"
                 logger.error(error_msg)
                 raise Exception(error_msg)
-
-        logger.info(f"📊 成功加载 {len(self.templates)} 个模板: {list(self.templates.keys())}")
 
     def _select_template(self, contract_type: str = "", template_key: Optional[str] = None) -> str:
         """选择合同模板，支持外部参数指定"""
