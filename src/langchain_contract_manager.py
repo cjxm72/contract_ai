@@ -846,6 +846,6 @@ if __name__ == "__main__":
     )
 
     # 运行演示程序
-    template_name = "技术开发合同"  # 在这里设置想要的模板名称
+    template_name = "物联网流量合同"  # 在这里设置想要的模板名称
     manager = LangChainContractManager()
     manager.run(template_key=template_name)
