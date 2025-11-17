@@ -38,13 +38,14 @@ class ContractState(TypedDictExt):
 class LangChainContractManager:
     """基于LangChain的合同管理器"""
     
-    def __init__(self):
+    def __init__(self, template_key: Optional[str] = None):
         self.local_model = None
         self.model_mode = "online"
         self.temperature = 0.3
         self.max_tokens = openai_settings.max_tokens or 4048
         self.timeout = openai_settings.timeout_seconds if openai_settings.use_local_model else openai_settings.timeout
         self.max_rounds = 3
+        self.selected_template_key = template_key
         # 初始化记忆（如果ConversationBufferMemory可用）
         if ConversationBufferMemory is not None:
             self.memory = ConversationBufferMemory(
@@ -89,7 +90,6 @@ class LangChainContractManager:
     def _create_local_llm(self):
         """创建本地模型包装器（兼容LangChain接口）"""
         from langchain_core.language_models import BaseChatModel
-        from langchain_core.callbacks import CallbackManagerForLLMRun
         from langchain_core.outputs import ChatGeneration, ChatResult
         from langchain_core.messages import AIMessage
         
@@ -185,14 +185,19 @@ class LangChainContractManager:
                 raise Exception(error_msg)
 
         logger.info(f"📊 成功加载 {len(self.templates)} 个模板: {list(self.templates.keys())}")
-    
+
     def _select_template(self, contract_type: str = "", template_key: Optional[str] = None) -> str:
         """选择合同模板，支持外部参数指定"""
+        # 优先使用构造函数传入的模板
+        if self.selected_template_key and self.selected_template_key in self.templates:
+            logger.info(f"✅ 使用主函数指定的模板: {self.selected_template_key}")
+            return self.selected_template_key
+
         # 如果提供了外部参数，优先使用
         if template_key and template_key in self.templates:
             logger.info(f"✅ 使用指定的模板: {template_key}")
             return template_key
-        
+
         # 如果没有提供或提供的模板不存在，则自主选择
         if contract_type:
             contract_type_lower = contract_type.lower()
@@ -200,13 +205,13 @@ class LangChainContractManager:
                 if key.lower() in contract_type_lower or contract_type_lower in key.lower():
                     logger.info(f"✅ 自动选择模板: {key}")
                     return key
-        
+
         # 默认返回第一个模板，如果没有则返回default
         if self.templates:
             default_key = list(self.templates.keys())[0]
             logger.info(f"✅ 使用默认模板: {default_key}")
             return default_key
-        
+
         logger.warning("⚠️ 未找到可用模板")
         return 'default'
     
@@ -714,12 +719,12 @@ class LangChainContractManager:
         except Exception as e:
             logger.error(f"❌ 合同处理失败: {e}")
             raise
-    
-    def run(self):
+
+    def run(self, template_key: Optional[str] = None):
         """运行演示主函数（同步入口，内部调用异步逻辑）"""
-        asyncio.run(self._async_run())
-    
-    async def _async_run(self):
+        asyncio.run(self._async_run(template_key))
+
+    async def _async_run(self, template_key: Optional[str] = None):
         """异步核心主函数（交互式处理模式）"""
         try:
             logger.info("🚀 启动合同生成演示程序（LangChain版）")
@@ -748,6 +753,16 @@ class LangChainContractManager:
             for i, json_file in enumerate(json_files, 1):
                 print(f"  {i}. {json_file.name}")
 
+            # 新增：显示模板信息
+            if template_key:
+                if template_key in self.templates:
+                    print(f"✅ 使用指定模板: {template_key}")
+                else:
+                    print(f"⚠️ 指定模板 '{template_key}' 不存在，将使用自动选择")
+                    template_key = None
+            else:
+                print("✅ 将使用自动模板选择")
+
             print(f"\n{'=' * 70}")
             print("🔍 交互式处理模式")
             print(f"{'=' * 70}")
@@ -762,7 +777,8 @@ class LangChainContractManager:
                 for key, value in input_data.items():
                     print(f"  - {key}: {value}")
 
-                result = await self.process_contract_interactive(input_data)
+                # 修改：传递指定的模板
+                result = await self.process_contract_interactive(input_data, template_key)
 
                 if result['status'] == 'success':
                     output_dir = current_dir.parent / "output"
@@ -822,6 +838,6 @@ if __name__ == "__main__":
     )
 
     # 运行演示程序
+    template_name = "技术开发合同"  # 在这里设置想要的模板名称
     manager = LangChainContractManager()
-    manager.run()
-
+    manager.run(template_key=template_name)
